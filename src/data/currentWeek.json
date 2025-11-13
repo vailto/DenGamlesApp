@@ -1,0 +1,82 @@
+[
+  {
+    "id": "M1",
+    "home": "Vitoria",
+    "away": "Internacional",
+    "streck": {
+      "1": 0.25,
+      "X": 0.30,
+      "2": 0.45
+    }
+  },
+  {
+    "id": "M2",
+    "home": "Sport Recife",
+    "away": "Juventude",
+    "streck": {
+      "1": 0.40,
+      "X": 0.30,
+      "2": 0.30
+    }
+  },
+  {
+    "id": "M3",
+    "home": "Bragantino",
+    "away": "Corinthians",
+    "streck": {
+      "1": 0.35,
+      "X": 0.30,
+      "2": 0.35
+    }
+  },
+  {
+    "id": "M4",
+    "home": "Botafogo",
+    "away": "Vasco da Gama",
+    "streck": {
+      "1": 0.55,
+      "X": 0.25,
+      "2": 0.20
+    }
+  },
+  {
+    "id": "M5",
+    "home": "Atletico Mineiro",
+    "away": "Bahia",
+    "streck": {
+      "1": 0.50,
+      "X": 0.28,
+      "2": 0.22
+    }
+  },
+  {
+    "id": "M6",
+    "home": "Gremio",
+    "away": "Cruzeiro",
+    "streck": {
+      "1": 0.45,
+      "X": 0.30,
+      "2": 0.25
+    }
+  },
+  {
+    "id": "M7",
+    "home": "Sao Paulo",
+    "away": "Flamengo",
+    "streck": {
+      "1": 0.30,
+      "X": 0.28,
+      "2": 0.42
+    }
+  },
+  {
+    "id": "M8",
+    "home": "Independiente",
+    "away": "Argentinos Juniors",
+    "streck": {
+      "1": 0.48,
+      "X": 0.30,
+      "2": 0.22
+    }
+  }
+]

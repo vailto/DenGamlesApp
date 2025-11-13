@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"c:\\Users\\marti\\EV2\")",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(cat:*)",
+      "Bash(timeout /t 5)",
+      "Bash(dir:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
