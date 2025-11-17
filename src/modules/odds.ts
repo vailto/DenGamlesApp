@@ -11,23 +11,15 @@ export function computeMatchIp(match: MatchInput): MatchComputed {
   const rawIp: Partial<Record<Outcome, number>> = {};
 
   // Calculate raw IP for each outcome that has odds
-  // Prioritize API odds, fall back to SvS odds, then to fair odds from streck%
+  // Prioritize API odds, fall back to SvS odds
   const outcomes: Outcome[] = ['1', 'X', '2'];
   for (const outcome of outcomes) {
     // First try API odds
     let odds = match.odds?.[outcome];
 
-    // If no API odds, try SvS odds as fallback
+    // If no API odds, use SvS odds as fallback
     if ((odds === undefined || odds === 0) && match.svsOdds) {
       odds = match.svsOdds[outcome];
-    }
-
-    // If still no odds, calculate fair odds from streck% (EV=1.00)
-    if ((odds === undefined || odds === 0) && match.streck?.[outcome]) {
-      const streck = match.streck[outcome];
-      if (streck > 0) {
-        odds = 1 / streckToDecimal(streck);
-      }
     }
 
     if (odds !== undefined && odds > 0) {

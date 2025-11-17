@@ -27,7 +27,7 @@ export default function ValueBadges({ diff }: ValueBadgesProps) {
                 : 'bg-gray-100 text-gray-600'
             }`}
           >
-            {outcome}: {displayValue > 0 ? '+' : ''}{displayValue}%
+            {outcome}: {diffValue > 0 ? '+' : ''}{displayValue}%
           </span>
         );
       })}

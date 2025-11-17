@@ -92,22 +92,10 @@ export default function MatchTableNew({
     return (1 / total) * 100;
   };
 
-  // Get SvS odds (from file if available, otherwise calculate from streck%)
+  // Get SvS odds (from file)
   const getSvsOdds = (match: MatchComputed): Partial<Record<Outcome, number>> => {
-    // If we have svsOdds from the file, use those
-    if (match.svsOdds && Object.keys(match.svsOdds).length > 0) {
-      return match.svsOdds;
-    }
-
-    // Otherwise calculate from streck%
-    const svsOdds: Partial<Record<Outcome, number>> = {};
-    outcomes.forEach(outcome => {
-      const s = match.streck?.[outcome];
-      if (s && s > 0) {
-        svsOdds[outcome] = 1 / s;
-      }
-    });
-    return svsOdds;
+    // Return svsOdds from the parsed file (no fallback calculation)
+    return match.svsOdds || {};
   };
 
   return (

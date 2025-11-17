@@ -154,8 +154,8 @@ export function parseSvenskaSpelFile(content: string): ParsedCoupon {
 
       // Check if next line has odds or is empty/separator
       if (nextLine && nextLine.trim() !== '' && nextLine.trim() !== '---') {
-        // Match pattern like "3,30   4,00   2,08" (with comma as decimal separator)
-        const oddsMatch = nextLine.match(/([\d,]+)\s+([\d,]+)\s+([\d,]+)/);
+        // Match pattern like "3,30   4,00   2,08" or "3.30   4.00   2.08" (with comma or period as decimal separator)
+        const oddsMatch = nextLine.match(/([\d,.]+)\s+([\d,.]+)\s+([\d,.]+)/);
         if (oddsMatch) {
           const [, o1, ox, o2] = oddsMatch;
 

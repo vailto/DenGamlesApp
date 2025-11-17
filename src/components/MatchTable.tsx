@@ -16,9 +16,9 @@ export default function MatchTable({ matches, onMatchChange }: MatchTableProps) 
     matchId: string,
     field: 'odds' | 'streck',
     outcome: Outcome,
-    value: string
+    value: string | number
   ) => {
-    const numValue = parseFloat(value);
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
     if (!isNaN(numValue)) {
       onMatchChange(matchId, field, outcome, numValue);
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { MatchInput, MatchComputed, SystemRow, Outcome, AnalysisSettings } from '@/lib/types';
 import { computeAll, analyzeRound } from '@/lib/flow';
 import MatchTableNew from '@/components/MatchTableNew';
@@ -150,10 +151,18 @@ export default function Home() {
   };
 
   const handleFileLoaded = async (coupon: ParsedCoupon) => {
-    // Load the parsed data
-    const computedMatches = computeAll(coupon.matches);
+    // Load the parsed data and copy svsOdds to odds as initial values
+    console.log('Raw parsed matches:', coupon.matches);
+    const matchesWithInitialOdds = coupon.matches.map(m => ({
+      ...m,
+      odds: m.svsOdds || {}, // Use svsOdds as initial odds (will be replaced by API odds if found)
+    }));
+
+    console.log('Matches with initial odds:', matchesWithInitialOdds);
+    const computedMatches = computeAll(matchesWithInitialOdds);
     console.log('Parsed matches:', coupon.matches.length, 'matches');
     console.log('Match IDs:', coupon.matches.map(m => m.id));
+    console.log('Computed matches:', computedMatches);
     setMatches(computedMatches);
     setRoundNumber(coupon.roundNumber);
     setSportType(coupon.sport);
@@ -321,9 +330,11 @@ export default function Home() {
           <div className="flex items-center -m-4">
             {/* Logo */}
             <div className="flex-shrink-0 pl-4">
-              <img
+              <Image
                 src="/onegamblingguru-logo.png"
                 alt="den Gamle och Vadet"
+                width={224}
+                height={224}
                 className="h-56 w-auto transform hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -335,7 +346,7 @@ export default function Home() {
                 <span className="font-light">och Vadet</span>
               </h1>
               <p className="text-gray-300 text-2xl italic">
-                "tur är för amatörer"
+                &quot;tur är för amatörer&quot;
               </p>
               {sportType && roundNumber && (
                 <p className="text-sm text-blue-400 font-semibold mt-1 flex items-center gap-2">

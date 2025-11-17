@@ -10,7 +10,11 @@
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
       "Bash(netstat:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(fly deploy:*)",
+      "Bash(fly certs add:*)",
+      "Bash(nslookup:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
