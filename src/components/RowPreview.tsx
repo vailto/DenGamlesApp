@@ -17,58 +17,20 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
   // Show top 50 rows sorted by EV
   const sortedRows = [...filteredRows].sort((a, b) => b.evIndex - a.evIndex).slice(0, 50);
 
-  // Calculate probability based on match coverage (for unreduced system)
-  // This shows the theoretical max probability based on which outcomes are covered
-  const calculateCoverageProbability = (rows: SystemRow[]): number => {
+  // Calculate total hit probability by summing rowIp for all rows
+  // Each rowIp represents the probability that specific row wins
+  // The sum gives us the total probability of hitting at least one of these rows
+  // For helgardering (all outcomes covered) this sums to 100%
+  const calculateTotalHitProbability = (rows: SystemRow[]): number => {
     if (rows.length === 0) return 0;
-
-    // Check which outcomes are covered for each match
-    const matchCoverage: Record<string, Set<string>> = {};
-    for (const row of rows) {
-      for (const [matchId, outcome] of Object.entries(row.picks)) {
-        if (!matchCoverage[matchId]) {
-          matchCoverage[matchId] = new Set();
-        }
-        matchCoverage[matchId].add(outcome);
-      }
-    }
-
-    // Calculate probability: product of IP sums for covered outcomes per match
-    let totalProbability = 1.0;
-
-    for (const matchId of matchIds) {
-      const coveredOutcomes = matchCoverage[matchId];
-
-      if (coveredOutcomes && coveredOutcomes.size === 3) {
-        // All outcomes covered - 100% probability for this match
-        totalProbability *= 1.0;
-      } else if (coveredOutcomes && coveredOutcomes.size > 0) {
-        // Sum the IPs of covered outcomes
-        const match = matches.find(m => m.id === matchId);
-        if (match && match.ip) {
-          const coveredIpSum = Array.from(coveredOutcomes).reduce((sum, outcome) => {
-            const outcomeIp = match.ip?.[outcome as '1' | 'X' | '2'];
-            return sum + (outcomeIp || 0);
-          }, 0);
-          totalProbability *= coveredIpSum;
-        } else {
-          // No match data - assume equal probability
-          totalProbability *= (coveredOutcomes.size / 3);
-        }
-      }
-    }
-
-    return totalProbability;
+    return rows.reduce((sum, row) => sum + row.rowIp, 0);
   };
 
-  // Unreduced: Use coverage-based calculation (theoretical maximum)
-  const unreducedHitProbability = calculateCoverageProbability(allRows);
+  // Unreduced: Total probability from all built rows
+  const unreducedHitProbability = calculateTotalHitProbability(allRows);
 
-  // Reduced: Start with unreduced, then subtract the IP of removed rows
-  // This is a simpler approximation that works well when rows don't overlap much
-  const removedRows = allRows.filter(row => !filteredRows.includes(row));
-  const removedIpSum = removedRows.reduce((sum, row) => sum + row.rowIp, 0);
-  const reducedHitProbability = Math.max(0, unreducedHitProbability - removedIpSum);
+  // Reduced: Total probability from filtered rows only
+  const reducedHitProbability = calculateTotalHitProbability(filteredRows);
 
   // Calculate how many rows have positive EV (EV > 1.1 for safety margin)
   const positiveEvCount = filteredRows.filter(row => row.evIndex > 1.1).length;
@@ -241,6 +203,30 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
               </p>
             </div>
           )}
+
+          {/* Money-EV Statistics */}
+          {filteredRows.length > 0 && filteredRows[0].moneyEv !== undefined && (
+            <div className="mt-4 pt-4 border-t border-green-700/50">
+              <h4 className="font-bold text-md mb-3 text-green-300">💰 Money-EV Statistik</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-400">Snitt Money-EV per rad:</p>
+                  <p className="text-xl font-bold text-green-400">
+                    {(filteredRows.reduce((sum, r) => sum + (r.moneyEv || 0), 0) / filteredRows.length).toFixed(2)} kr
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Total System Money-EV:</p>
+                  <p className="text-xl font-bold text-green-400">
+                    {filteredRows.reduce((sum, r) => sum + (r.moneyEv || 0), 0).toFixed(2)} kr
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                * Money-EV = Förväntad avkastning per rad minus 1 kr insats
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -263,6 +249,13 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
                   <th className="border border-purple-700/50 px-2 py-1">IP%</th>
                   <th className="border border-purple-700/50 px-2 py-1">Streck%</th>
                   <th className="border border-purple-700/50 px-2 py-1">EV</th>
+                  {filteredRows.length > 0 && filteredRows[0].moneyEv !== undefined && (
+                    <>
+                      <th className="border border-purple-700/50 px-2 py-1">Money-EV (kr)</th>
+                      <th className="border border-purple-700/50 px-2 py-1">Utdeln. vid Vinst</th>
+                      <th className="border border-purple-700/50 px-2 py-1">Förv. Andra</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-[#1a1a3e]">
@@ -292,6 +285,25 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
                         ? row.evIndex.toExponential(2)
                         : row.evIndex.toFixed(3)}
                     </td>
+                    {row.moneyEv !== undefined && (
+                      <>
+                        <td className="border border-purple-700/30 px-2 py-1 text-right font-bold">
+                          <span className={row.moneyEv > 0 ? 'text-green-400' : 'text-red-400'}>
+                            {row.moneyEv.toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="border border-purple-700/30 px-2 py-1 text-right text-gray-300">
+                          {row.expectedPayoutWhenWin
+                            ? row.expectedPayoutWhenWin.toLocaleString(undefined, { maximumFractionDigits: 0 })
+                            : '-'}
+                        </td>
+                        <td className="border border-purple-700/30 px-2 py-1 text-right text-gray-300">
+                          {row.expectedOthers !== undefined
+                            ? row.expectedOthers.toFixed(2)
+                            : '-'}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>

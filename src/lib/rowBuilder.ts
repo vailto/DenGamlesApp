@@ -91,6 +91,59 @@ function calculateRowMetrics(
 }
 
 /**
+ * Beräknar pengar-EV för en rad
+ * @param row - Rad med rowIp och rowStreck
+ * @param turnover - Total omsättning i SEK
+ * @param extraPot - Extra jackpot
+ * @param rake - Andel som går till arrangör (default 0.30)
+ * @returns SystemRow med money-EV fält
+ */
+export function calculateRowMoneyEv(
+  row: SystemRow,
+  turnover: number,
+  extraPot: number = 0,
+  rake: number = 0.30
+): SystemRow {
+  // Pott efter rake
+  const pot = turnover * (1 - rake) + extraPot;
+
+  // Förväntade andra vinnare (mass × totalt antal rader)
+  const expectedOthers = turnover * row.rowStreck;
+
+  // Total förväntade vinnare (inkl. oss själva)
+  const totalExpectedWinners = 1 + expectedOthers;
+
+  // Förväntad utdelning vid vinst
+  const expectedPayoutWhenWin = pot / totalExpectedWinners;
+
+  // Pengar-EV (förväntad vinst minus insats)
+  const moneyEv = row.rowIp * expectedPayoutWhenWin - 1;
+
+  return {
+    ...row,
+    expectedOthers,
+    expectedPayoutWhenWin,
+    moneyEv,
+  };
+}
+
+/**
+ * Beräknar money-EV för alla rader
+ */
+export function calculateAllRowsMoneyEv(
+  rows: SystemRow[],
+  turnover: number,
+  extraPot: number = 0,
+  rake: number = 0.30
+): SystemRow[] {
+  if (!turnover || turnover <= 0) {
+    return rows; // Returnera oförändrade om ingen omsättning
+  }
+
+  return rows.map(row => calculateRowMoneyEv(row, turnover, extraPot, rake));
+}
+
+/**
  * Filters rows by percentile ranges
  * @param rows - All rows
  * @param streckRange - [min%, max%] percentile to keep (0-100)
@@ -188,4 +241,72 @@ export function filterRowsByPotValue(
     // This filters out rows where the expected return is too low
     return expectedPayoutPerWinner >= minPayoutRatio;
   });
+}
+
+/**
+ * Filtrerar rader baserat på pengar-EV range
+ * @param rows - Rader med moneyEv beräknad
+ * @param minMoneyEv - Minsta acceptabla money-EV (optional)
+ * @param maxMoneyEv - Högsta acceptabla money-EV (optional)
+ * @returns Filtrerade rader
+ */
+export function filterRowsByMoneyEvRange(
+  rows: SystemRow[],
+  minMoneyEv?: number,
+  maxMoneyEv?: number
+): SystemRow[] {
+  return rows.filter(row => {
+    if (row.moneyEv === undefined) return false;
+
+    if (minMoneyEv !== undefined && row.moneyEv < minMoneyEv) return false;
+    if (maxMoneyEv !== undefined && row.moneyEv > maxMoneyEv) return false;
+
+    return true;
+  });
+}
+
+/**
+ * Filtrerar rader baserat på förväntad utdelning vid vinst
+ * @param rows - Rader med expectedPayoutWhenWin beräknad
+ * @param minPayout - Minsta utdelning (optional)
+ * @param maxPayout - Högsta utdelning (optional)
+ * @returns Filtrerade rader
+ */
+export function filterRowsByPayoutRange(
+  rows: SystemRow[],
+  minPayout?: number,
+  maxPayout?: number
+): SystemRow[] {
+  return rows.filter(row => {
+    if (row.expectedPayoutWhenWin === undefined) return true;
+
+    const payout = row.expectedPayoutWhenWin;
+
+    if (minPayout !== undefined && payout < minPayout) return false;
+    if (maxPayout !== undefined && payout > maxPayout) return false;
+
+    return true;
+  });
+}
+
+/**
+ * Behåller topp N rader sorterade på money-EV
+ * @param rows - Rader med moneyEv
+ * @param maxRows - Max antal rader att behålla
+ * @returns Topp N rader med högst money-EV
+ */
+export function keepTopNRowsByMoneyEv(
+  rows: SystemRow[],
+  maxRows: number
+): SystemRow[] {
+  if (rows.length <= maxRows) return rows;
+
+  // Sortera på money-EV (högst först)
+  const sorted = [...rows].sort((a, b) => {
+    const evA = a.moneyEv ?? -Infinity;
+    const evB = b.moneyEv ?? -Infinity;
+    return evB - evA;
+  });
+
+  return sorted.slice(0, maxRows);
 }

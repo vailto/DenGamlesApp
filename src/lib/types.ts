@@ -22,6 +22,11 @@ export interface SystemRow {
   rowIp: number;      // produkt av IP för valda tecken
   rowStreck: number;  // produkt av streck
   evIndex: number;    // rowIp / rowStreck
+
+  // Money-EV fält:
+  expectedOthers?: number;      // Förväntade andra vinnare
+  expectedPayoutWhenWin?: number; // U_win: utdelning vid vinst
+  moneyEv?: number;              // Pengar-EV i SEK
 }
 
 export interface AnalysisSettings {
