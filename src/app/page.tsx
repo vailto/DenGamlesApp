@@ -12,8 +12,8 @@ export default function LandingPage() {
   };
 
   const handleTrackerClick = () => {
-    // TODO: Add authentication and redirect to tracker
-    alert('Tracker kommer snart!');
+    // Redirect to BetTracker
+    window.location.href = 'https://bettracker2-winter-fog-827.fly.dev/';
   };
 
   return (
