@@ -33,41 +33,34 @@ export default function LandingPage() {
             <span className="font-bold">den Gamle</span>{' '}
             <span className="font-light">och Vadet</span>
           </h1>
-          <p className="text-gray-300 text-3xl italic mb-6">
+          <p className="text-gray-300 text-2xl mb-8">
             &quot;Tur är ett språk de otåliga talar.&quot; ✨
           </p>
 
-          <div className="max-w-3xl mx-auto space-y-4 text-gray-300 text-base leading-relaxed mb-8">
-            <p className="italic">
-              Ingen vet vem han är.<br />
-              En del säger att han såg kupongens födelse.<br />
-              Andra att han hör oddsen viska genom mörkret.<br />
-              Själv säger han ingenting – och ändå säger han allt.
-            </p>
+          <div className="max-w-3xl mx-auto mb-8">
+            <div className="bg-gradient-to-br from-[#1e2745]/50 to-[#2a3256]/50 rounded-xl border border-blue-700/30 p-6 mb-6">
+              <p className="text-gray-300 text-base leading-relaxed">
+                Ingen vet vem han är.<br />
+                En del säger att han såg kupongens födelse.<br />
+                Andra att han hör oddsen viska genom mörkret.<br />
+                Själv säger han ingenting – och ändå säger han allt.
+              </p>
+            </div>
 
-            <p className="font-semibold text-gray-200">
-              Det enda man kan vara säker på är detta:<br />
-              När den Gamle rör sina rader, rör sig världen lite med honom.<br />
-              Han jagar inte slumpen.<br />
-              Han jagar det som gömmer sig bakom den.
-            </p>
+            <div className="bg-gradient-to-br from-[#1e2745]/50 to-[#2a3256]/50 rounded-xl border border-purple-700/30 p-6">
+              <p className="text-gray-300 text-base leading-relaxed mb-4">
+                Det enda man kan vara säker på är detta:<br />
+                När den Gamle rör sina rader, rör sig världen lite med honom.<br />
+                Han jagar inte slumpen.<br />
+                Han jagar det som gömmer sig bakom den.
+              </p>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Och han öppnar bara sina hemligheter för dem som vågar stanna upp,
+                se mönstren, och kliva över tröskeln. 🌙✨
+              </p>
+            </div>
 
-            <p className="text-gray-400">
-              Och han öppnar bara sina hemligheter för dem som vågar stanna upp,<br />
-              se mönstren,<br />
-              och kliva över tröskeln. 🌙✨
-            </p>
-
-            <p className="text-white font-semibold mt-6">
-              Bakom dörren delar sig vägen i två stigar:
-            </p>
-
-            <p className="text-gray-300">
-              <span className="text-blue-400 font-semibold">Analysen</span> – där siffror slutar vara siffror och börjar tala.<br />
-              <span className="text-purple-400 font-semibold">Resan</span> – där varje spel inte är ett spel, utan ett steg.
-            </p>
-
-            <p className="text-white font-bold text-lg mt-6">
+            <p className="text-white text-lg mt-8 mb-4 text-center">
               Välj din stig.<br />
               Den Gamle såg dig innan du kom hit.
             </p>
@@ -81,16 +74,16 @@ export default function LandingPage() {
           >
             <div className="text-center">
               <div className="text-6xl mb-4">🎯</div>
-              <h2 className="text-3xl font-bold text-white mb-3">EV2</h2>
-              <p className="text-gray-300 text-lg mb-4">
-                Expected Value Calculator
+              <h2 className="text-3xl font-bold text-white mb-3">Analysen</h2>
+              <p className="text-gray-300 text-base mb-4">
+                där siffror slutar vara siffror och börjar tala
               </p>
               <p className="text-gray-400 text-sm">
                 Analysera matcher, hämta odds från API,
                 beräkna IP% och EV-index, och generera optimala radsystem.
               </p>
               <div className="mt-6 inline-flex items-center text-blue-400 font-semibold group-hover:text-blue-300 transition-colors">
-                Starta analys
+                Kliv in
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -104,16 +97,16 @@ export default function LandingPage() {
           >
             <div className="text-center">
               <div className="text-6xl mb-4">📊</div>
-              <h2 className="text-3xl font-bold text-white mb-3">Tracker</h2>
-              <p className="text-gray-300 text-lg mb-4">
-                Betting Performance Tracker
+              <h2 className="text-3xl font-bold text-white mb-3">Resan</h2>
+              <p className="text-gray-300 text-base mb-4">
+                där varje spel inte är ett spel, utan ett steg
               </p>
               <p className="text-gray-400 text-sm">
                 Spåra dina spel, analysera resultat över tid,
                 se ROI, vinst/förlust och få insikter om din spelstrategi.
               </p>
               <div className="mt-6 inline-flex items-center text-purple-400 font-semibold group-hover:text-purple-300 transition-colors">
-                Öppna tracker
+                Kliv in
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
