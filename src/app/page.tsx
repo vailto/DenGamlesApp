@@ -34,32 +34,42 @@ export default function LandingPage() {
             <span className="font-light">och Vadet</span>
           </h1>
           <p className="text-gray-300 text-3xl italic mb-6">
-            &quot;tur är för amatörer&quot;
+            &quot;Tur är ett språk de otåliga talar.&quot; ✨
           </p>
 
           <div className="max-w-3xl mx-auto space-y-4 text-gray-300 text-base leading-relaxed mb-8">
             <p className="italic">
-              Ingen vet riktigt vem han är.<br />
-              Vissa säger att han såg de första kupongerna rullas ut för många år sedan.<br />
-              Andra säger att han kan höra hur oddsen rör sig, som om de viskar till honom i vinden.
+              Ingen vet vem han är.<br />
+              En del säger att han såg kupongens födelse.<br />
+              Andra att han hör oddsen viska genom mörkret.<br />
+              Själv säger han ingenting – och ändå säger han allt.
             </p>
 
             <p className="font-semibold text-gray-200">
-              Det enda som är säkert är detta:<br />
-              När han lägger sina rader, skakar spelet till.<br />
-              Han jagar inte tur. Han jagar värde.<br />
-              Och han delar bara sina hemligheter med dem som vågar kliva in.
+              Det enda man kan vara säker på är detta:<br />
+              När den Gamle rör sina rader, rör sig världen lite med honom.<br />
+              Han jagar inte slumpen.<br />
+              Han jagar det som gömmer sig bakom den.
             </p>
 
-            <p className="text-gray-400 text-sm">
-              Bakom dörren finns två vägar:<br />
-              <span className="text-blue-400">Analysen</span> – där siffror blir sanningar och sannolikhet blir kraft.<br />
-              <span className="text-purple-400">Resan</span> – där varje spel loggas, följs och formar historien om den gamle och vadet.
+            <p className="text-gray-400">
+              Och han öppnar bara sina hemligheter för dem som vågar stanna upp,<br />
+              se mönstren,<br />
+              och kliva över tröskeln. 🌙✨
+            </p>
+
+            <p className="text-white font-semibold mt-6">
+              Bakom dörren delar sig vägen i två stigar:
+            </p>
+
+            <p className="text-gray-300">
+              <span className="text-blue-400 font-semibold">Analysen</span> – där siffror slutar vara siffror och börjar tala.<br />
+              <span className="text-purple-400 font-semibold">Resan</span> – där varje spel inte är ett spel, utan ett steg.
             </p>
 
             <p className="text-white font-bold text-lg mt-6">
-              Välj din väg.<br />
-              Den gamle ser dig redan.
+              Välj din stig.<br />
+              Den Gamle såg dig innan du kom hit.
             </p>
           </div>
         </div>
