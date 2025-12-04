@@ -44,7 +44,9 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
     const minPayout = Math.min(...payouts);
     const maxPayout = Math.max(...payouts);
     const range = maxPayout - minPayout;
-    const bucketSize = range / 10;
+
+    // Handle edge case where all payouts are the same
+    const bucketSize = range > 0 ? range / 10 : 1;
 
     // Create 10 buckets
     const buckets = Array(10).fill(0).map((_, i) => ({
@@ -55,10 +57,16 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
 
     // Count rows in each bucket
     payouts.forEach(payout => {
-      const bucketIndex = Math.min(
-        Math.floor((payout - minPayout) / bucketSize),
-        9 // Ensure max value lands in last bucket
-      );
+      let bucketIndex;
+      if (range === 0) {
+        // If all payouts are the same, put them all in the middle bucket
+        bucketIndex = 5;
+      } else {
+        bucketIndex = Math.min(
+          Math.floor((payout - minPayout) / bucketSize),
+          9 // Ensure max value lands in last bucket
+        );
+      }
       buckets[bucketIndex].count++;
     });
 
@@ -157,7 +165,13 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
         <div className="relative" style={{ height: `${chartHeight}px` }}>
           <div className="flex items-end justify-between h-full gap-1">
             {buckets.map((bucket, i) => {
-              const heightPercent = maxCount > 0 ? (bucket.count / maxCount) * 100 : 0;
+              // Calculate height with minimum of 2% for visibility
+              const heightPercent = maxCount > 0
+                ? Math.max(2, (bucket.count / maxCount) * 100)
+                : 2;
+
+              // Dim empty bars
+              const isEmpty = bucket.count === 0;
 
               return (
                 <div
@@ -166,7 +180,11 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
                 >
                   {/* Bar */}
                   <div
-                    className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t transition-all duration-200 hover:from-green-500 hover:to-green-300"
+                    className={`w-full rounded-t transition-all duration-200 ${
+                      isEmpty
+                        ? 'bg-gray-700/30 hover:bg-gray-600/40'
+                        : 'bg-gradient-to-t from-green-600 to-green-400 hover:from-green-500 hover:to-green-300'
+                    }`}
                     style={{ height: `${heightPercent}%` }}
                   >
                     {/* Tooltip on hover */}
