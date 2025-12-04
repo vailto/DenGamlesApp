@@ -81,6 +81,12 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
     ? (positiveEvCount / filteredRows.length) * 100
     : 0;
 
+  // Calculate how many rows have positive Money-EV
+  const positiveMoneyEvCount = filteredRows.filter(row => (row.moneyEv || 0) > 0).length;
+  const positiveMoneyEvPercentage = filteredRows.length > 0
+    ? (positiveMoneyEvCount / filteredRows.length) * 100
+    : 0;
+
   // Calculate expected payout statistics
   const calculatePayoutStats = (rows: SystemRow[]) => {
     if (rows.length === 0 || !turnover) return null;
@@ -141,7 +147,10 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
     // Calculate odds for that row: odds = 1 / probability
     const maxOdds = minIpRow ? (1 / minIpRow.rowIp) : 0;
 
-    return { pot, avgPayout, minPayout, maxPayout, maxOdds };
+    // Calculate average odds across all rows
+    const avgOdds = rows.reduce((sum, row) => sum + (1 / row.rowIp), 0) / rows.length;
+
+    return { pot, avgPayout, minPayout, maxPayout, maxOdds, avgOdds };
   };
 
   const payoutStats = calculatePayoutStats(filteredRows);
@@ -254,6 +263,22 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
                 {(filteredRows.length - positiveEvCount).toLocaleString()} ({(100 - positiveEvPercentage).toFixed(1)}%)
               </p>
             </div>
+            {filteredRows.length > 0 && filteredRows[0].moneyEv !== undefined && (
+              <>
+                <div>
+                  <p className="text-gray-400">Rader med positivt Money-EV:</p>
+                  <p className="text-xl font-bold text-green-400">
+                    {positiveMoneyEvCount.toLocaleString()} ({positiveMoneyEvPercentage.toFixed(1)}%)
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Rader med negativt Money-EV:</p>
+                  <p className="text-xl font-bold text-red-400">
+                    {(filteredRows.length - positiveMoneyEvCount).toLocaleString()} ({(100 - positiveMoneyEvPercentage).toFixed(1)}%)
+                  </p>
+                </div>
+              </>
+            )}
             <div>
               <p className="text-gray-400">Chans träff (oreducerat):</p>
               <p className="text-xl font-bold text-purple-400">
@@ -295,6 +320,12 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
                   <p className="text-gray-400">Max utdelning:</p>
                   <p className="text-lg font-bold text-cyan-400">
                     {payoutStats.maxPayout.toLocaleString(undefined, { maximumFractionDigits: 0 })} kr
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Medel-odds:</p>
+                  <p className="text-lg font-bold text-blue-400">
+                    {payoutStats.avgOdds.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </p>
                 </div>
                 <div>
