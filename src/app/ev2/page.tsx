@@ -54,6 +54,106 @@ export default function EV2Page() {
   const [maxRowsLimit, setMaxRowsLimit] = useState<number>(500);  // Default: 500 rader
   const [enableRowLimit, setEnableRowLimit] = useState<boolean>(false);  // Inaktiverad som default - visa alla
 
+  // Coupon Classification Function
+  const classifyCoupon = (matches: MatchComputed[]) => {
+    if (matches.length === 0) return null;
+
+    const matchCount = matches.length;
+
+    // Calculate metrics for each match
+    const matchMetrics = matches.map(match => {
+      const ips = [match.ip['1'] || 0, match.ip['X'] || 0, match.ip['2'] || 0];
+      const maxIp = Math.max(...ips);
+      const sortedIps = [...ips].sort((a, b) => b - a);
+      const secondIp = sortedIps[1] || 0;
+      const gap = maxIp - secondIp; // How much clearer is the favorite?
+
+      return { maxIp, gap };
+    });
+
+    // Count matches with clear favorites (>= 55% probability and gap > 0.15)
+    const clearFavorites = matchMetrics.filter(m => m.maxIp >= 0.55 && m.gap > 0.15).length;
+
+    // Count very even matches (max IP < 42% - all three outcomes close)
+    const veryEvenMatches = matchMetrics.filter(m => m.maxIp < 0.42).length;
+
+    // Average favorite probability
+    const avgMaxIp = matchMetrics.reduce((sum, m) => sum + m.maxIp, 0) / matchCount;
+
+    // Classification logic
+    let couponType: 'favorite' | 'mixed' | 'even';
+
+    if (clearFavorites >= matchCount * 0.6) {
+      // 60% or more have clear favorites
+      couponType = 'favorite';
+    } else if (veryEvenMatches >= matchCount * 0.5 || avgMaxIp < 0.40) {
+      // 50% or more very even, or average max IP very low
+      couponType = 'even';
+    } else {
+      couponType = 'mixed';
+    }
+
+    // Target values based on coupon type and match count
+    const getTargets = () => {
+      if (matchCount <= 10) {
+        // 8-match coupons (Powerplay/Topptipset)
+        switch (couponType) {
+          case 'favorite':
+            return {
+              rows: '50-150',
+              maxOdds: '2,000-5,000',
+              maxPayout: '10k-50k'
+            };
+          case 'mixed':
+            return {
+              rows: '150-400',
+              maxOdds: '5,000-20,000',
+              maxPayout: '50k-200k'
+            };
+          case 'even':
+            return {
+              rows: '400-1,000',
+              maxOdds: '20,000-100,000',
+              maxPayout: '200k-1M'
+            };
+        }
+      } else {
+        // 13-match coupons (Stryktipset/Europatipset)
+        switch (couponType) {
+          case 'favorite':
+            return {
+              rows: '200-500',
+              maxOdds: '50,000-200,000',
+              maxPayout: '500k-2M'
+            };
+          case 'mixed':
+            return {
+              rows: '500-2,000',
+              maxOdds: '200,000-1M',
+              maxPayout: '2M-10M'
+            };
+          case 'even':
+            return {
+              rows: '2,000-10,000',
+              maxOdds: '1M-10M',
+              maxPayout: '10M-50M'
+            };
+        }
+      }
+    };
+
+    return {
+      type: couponType,
+      matchCount,
+      avgMaxIp,
+      clearFavorites,
+      veryEvenMatches,
+      targets: getTargets()
+    };
+  };
+
+  const couponAnalysis = classifyCoupon(matches);
+
   // Don't auto-load matches on startup - user will paste/upload their own data
   // Clear old localStorage data on mount
   useEffect(() => {
@@ -503,6 +603,76 @@ export default function EV2Page() {
               onSelectionChange={handleSelectionChange}
               outcomePercentages={allBuiltRows.length > 0 ? outcomePercentages : undefined}
             />
+
+            {/* Coupon Analysis Panel */}
+            {couponAnalysis && (
+              <div className="mt-6 bg-gradient-to-br from-[#1a2332] to-[#242b3d] rounded-lg border-2 border-cyan-700/50 p-5 shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl">🎯</div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-lg font-bold text-cyan-300">Kuponganalys</h3>
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        couponAnalysis.type === 'favorite'
+                          ? 'bg-green-900/50 text-green-300 border border-green-600/50'
+                          : couponAnalysis.type === 'even'
+                          ? 'bg-orange-900/50 text-orange-300 border border-orange-600/50'
+                          : 'bg-blue-900/50 text-blue-300 border border-blue-600/50'
+                      }`}>
+                        {couponAnalysis.type === 'favorite' && '⭐ Favoritkupong'}
+                        {couponAnalysis.type === 'mixed' && '⚖️ Mixad kupong'}
+                        {couponAnalysis.type === 'even' && '🎲 Jämn kupong'}
+                      </span>
+                      <span className="text-sm text-gray-400">
+                        ({couponAnalysis.matchCount} matcher)
+                      </span>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4 mb-4">
+                      <div className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/50">
+                        <p className="text-xs text-gray-400 mb-1">Genomsnittlig favorit-IP</p>
+                        <p className="text-xl font-bold text-white">
+                          {(couponAnalysis.avgMaxIp * 100).toFixed(1)}%
+                        </p>
+                      </div>
+                      <div className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/50">
+                        <p className="text-xs text-gray-400 mb-1">Tydliga favoriter</p>
+                        <p className="text-xl font-bold text-white">
+                          {couponAnalysis.clearFavorites}/{couponAnalysis.matchCount}
+                        </p>
+                      </div>
+                      <div className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/50">
+                        <p className="text-xs text-gray-400 mb-1">Jämna matcher</p>
+                        <p className="text-xl font-bold text-white">
+                          {couponAnalysis.veryEvenMatches}/{couponAnalysis.matchCount}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-cyan-900/20 rounded-lg p-4 border border-cyan-700/50">
+                      <h4 className="text-sm font-bold text-cyan-200 mb-3">📋 Rekommenderade riktvärden:</h4>
+                      <div className="grid md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-400 mb-1">Antal rader:</p>
+                          <p className="font-bold text-cyan-100">{couponAnalysis.targets.rows}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 mb-1">Maxodds:</p>
+                          <p className="font-bold text-cyan-100">{couponAnalysis.targets.maxOdds}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 mb-1">Maxutdelning:</p>
+                          <p className="font-bold text-cyan-100">{couponAnalysis.targets.maxPayout}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-3">
+                        💡 Detta är vägledande värden. Justera filtren manuellt baserat på din strategi.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Row count display */}
             <div className="mt-4 p-4">
