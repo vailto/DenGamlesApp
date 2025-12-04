@@ -94,27 +94,28 @@ export default function EV2Page() {
     }
 
     // Target values based on coupon type and match count
+    // LOW-MEDIUM VARIANCE STRATEGY: Focus on stable ROI, higher hit%, lower variance
     const getTargets = () => {
       if (matchCount <= 10) {
         // 8-match coupons (Powerplay/Topptipset)
         switch (couponType) {
           case 'favorite':
             return {
-              rows: '50-150',
-              maxOdds: '2,000-5,000',
-              maxPayout: '10k-50k'
+              rows: '200-300',
+              maxOdds: '3,000-6,000',
+              maxPayout: '4,000-9,000'
             };
           case 'mixed':
             return {
-              rows: '150-400',
-              maxOdds: '5,000-20,000',
-              maxPayout: '50k-200k'
+              rows: '200-350',
+              maxOdds: '5,000-7,500',
+              maxPayout: '8,000-12,000'
             };
           case 'even':
             return {
-              rows: '400-1,000',
-              maxOdds: '20,000-100,000',
-              maxPayout: '200k-1M'
+              rows: '250-400',
+              maxOdds: '6,000-10,000',
+              maxPayout: '10,000-18,000'
             };
         }
       } else {
@@ -122,21 +123,21 @@ export default function EV2Page() {
         switch (couponType) {
           case 'favorite':
             return {
-              rows: '200-500',
-              maxOdds: '50,000-200,000',
-              maxPayout: '500k-2M'
+              rows: '400-600',
+              maxOdds: '20,000-60,000',
+              maxPayout: '50,000-150,000'
             };
           case 'mixed':
             return {
-              rows: '500-2,000',
-              maxOdds: '200,000-1M',
-              maxPayout: '2M-10M'
+              rows: '500-700',
+              maxOdds: '40,000-100,000',
+              maxPayout: '100,000-300,000'
             };
           case 'even':
             return {
-              rows: '2,000-10,000',
-              maxOdds: '1M-10M',
-              maxPayout: '10M-50M'
+              rows: '600-900',
+              maxOdds: '70,000-150,000',
+              maxPayout: '200,000-500,000'
             };
         }
       }
