@@ -32,6 +32,41 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
   // Reduced: Total probability from filtered rows only
   const reducedHitProbability = calculateTotalHitProbability(filteredRows);
 
+  // Calculate payout distribution for histogram
+  const calculatePayoutDistribution = (rows: SystemRow[]) => {
+    // Filter out rows with valid payout
+    const payouts = rows
+      .map(r => r.expectedPayoutWhenWin)
+      .filter((p): p is number => p !== undefined && p > 0 && isFinite(p));
+
+    if (payouts.length === 0) return null;
+
+    const minPayout = Math.min(...payouts);
+    const maxPayout = Math.max(...payouts);
+    const range = maxPayout - minPayout;
+    const bucketSize = range / 10;
+
+    // Create 10 buckets
+    const buckets = Array(10).fill(0).map((_, i) => ({
+      min: minPayout + (i * bucketSize),
+      max: minPayout + ((i + 1) * bucketSize),
+      count: 0
+    }));
+
+    // Count rows in each bucket
+    payouts.forEach(payout => {
+      const bucketIndex = Math.min(
+        Math.floor((payout - minPayout) / bucketSize),
+        9 // Ensure max value lands in last bucket
+      );
+      buckets[bucketIndex].count++;
+    });
+
+    const maxCount = Math.max(...buckets.map(b => b.count));
+
+    return { buckets, maxCount, minPayout, maxPayout };
+  };
+
   // Calculate how many rows have positive EV (EV > 1.1 for safety margin)
   const positiveEvCount = filteredRows.filter(row => row.evIndex > 1.1).length;
   const positiveEvPercentage = filteredRows.length > 0
@@ -102,6 +137,60 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
   };
 
   const payoutStats = calculatePayoutStats(filteredRows);
+
+  // Payout Distribution Chart Component
+  const PayoutDistributionChart = ({
+    distribution
+  }: {
+    distribution: ReturnType<typeof calculatePayoutDistribution>
+  }) => {
+    if (!distribution) return null;
+
+    const { buckets, maxCount } = distribution;
+    const chartHeight = 200;
+
+    return (
+      <div className="mb-4 bg-gradient-to-br from-[#1e2745]/30 to-[#2a3256]/30 rounded-lg border border-green-700/30 p-4">
+        <h4 className="text-sm font-bold text-green-300 mb-3">
+          📊 Utdelningsfördelning
+        </h4>
+        <div className="relative" style={{ height: `${chartHeight}px` }}>
+          <div className="flex items-end justify-between h-full gap-1">
+            {buckets.map((bucket, i) => {
+              const heightPercent = maxCount > 0 ? (bucket.count / maxCount) * 100 : 0;
+
+              return (
+                <div
+                  key={i}
+                  className="flex-1 flex flex-col items-center justify-end group relative"
+                >
+                  {/* Bar */}
+                  <div
+                    className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t transition-all duration-200 hover:from-green-500 hover:to-green-300"
+                    style={{ height: `${heightPercent}%` }}
+                  >
+                    {/* Tooltip on hover */}
+                    <div className="invisible group-hover:visible absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                      <div className="font-bold">{bucket.count} rader</div>
+                      <div className="text-gray-400">
+                        {bucket.min.toFixed(0)}-{bucket.max.toFixed(0)} kr
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* X-axis labels */}
+        <div className="flex justify-between mt-2 text-xs text-gray-400">
+          <span>{distribution.minPayout.toFixed(0)} kr</span>
+          <span>{distribution.maxPayout.toFixed(0)} kr</span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -236,6 +325,14 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
           <h3 className="font-bold text-lg mb-2 text-white">
             🏆 Topp 50 rader (sorterat på EV)
           </h3>
+
+          {/* Payout Distribution Chart */}
+          {turnover && turnover > 0 && (
+            <PayoutDistributionChart
+              distribution={calculatePayoutDistribution(filteredRows)}
+            />
+          )}
+
           <div className="overflow-x-auto max-h-96 overflow-y-auto border border-purple-700/50 rounded-lg">
             <table className="min-w-full text-xs border-collapse">
               <thead className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-white sticky top-0">
