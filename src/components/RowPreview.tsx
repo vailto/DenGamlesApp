@@ -162,33 +162,32 @@ export default function RowPreview({ allRows, filteredRows, showTable = true, tu
         <h4 className="text-sm font-bold text-green-300 mb-3">
           📊 Utdelningsfördelning
         </h4>
-        <div className="relative" style={{ height: `${chartHeight}px` }}>
-          <div className="flex items-end justify-between h-full gap-1">
+        <div className="relative bg-gray-900/20 rounded" style={{ height: `${chartHeight}px` }}>
+          <div className="flex items-end justify-between h-full gap-1 p-2">
             {buckets.map((bucket, i) => {
-              // Calculate height with minimum of 2% for visibility
-              const heightPercent = maxCount > 0
-                ? Math.max(2, (bucket.count / maxCount) * 100)
-                : 2;
-
-              // Dim empty bars
+              // Calculate height: minimum 8px for empty bars, scale up to chartHeight for filled bars
               const isEmpty = bucket.count === 0;
+              const heightPx = isEmpty
+                ? 8
+                : Math.max(8, (bucket.count / maxCount) * (chartHeight - 20));
 
               return (
                 <div
                   key={i}
                   className="flex-1 flex flex-col items-center justify-end group relative"
+                  style={{ minHeight: '8px' }}
                 >
                   {/* Bar */}
                   <div
-                    className={`w-full rounded-t transition-all duration-200 ${
+                    className={`w-full rounded-t transition-all duration-200 border ${
                       isEmpty
-                        ? 'bg-gray-700/30 hover:bg-gray-600/40'
-                        : 'bg-gradient-to-t from-green-600 to-green-400 hover:from-green-500 hover:to-green-300'
+                        ? 'bg-gray-700/50 border-gray-600/50 hover:bg-gray-600/60'
+                        : 'bg-gradient-to-t from-green-600 to-green-400 border-green-500/30 hover:from-green-500 hover:to-green-300'
                     }`}
-                    style={{ height: `${heightPercent}%` }}
+                    style={{ height: `${heightPx}px` }}
                   >
                     {/* Tooltip on hover */}
-                    <div className="invisible group-hover:visible absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                    <div className="invisible group-hover:visible absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10 border border-gray-700">
                       <div className="font-bold">{bucket.count} rader</div>
                       <div className="text-gray-400">
                         {bucket.min.toFixed(0)}-{bucket.max.toFixed(0)} kr
