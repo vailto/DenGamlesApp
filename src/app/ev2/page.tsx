@@ -307,6 +307,29 @@ export default function EV2Page() {
       return;
     }
 
+    // Check if we should use SvS odds instead of API
+    if (coupon.useSvsOdds) {
+      console.log('Using SvS odds from file, skipping API');
+      const matchesWithSvsOdds = computedMatches.map(m => {
+        if (m.svsOdds && Object.keys(m.svsOdds).length > 0) {
+          return { ...m, odds: m.svsOdds };
+        }
+        // Fallback to fair odds if no SvS odds available
+        const fairOdds: Partial<Record<Outcome, number>> = {};
+        const outcomes: Outcome[] = ['1', 'X', '2'];
+        for (const outcome of outcomes) {
+          const streck = m.streck?.[outcome];
+          if (streck !== undefined && streck > 0) {
+            fairOdds[outcome] = 1 / streck;
+          }
+        }
+        return { ...m, odds: fairOdds };
+      });
+      setMatches(computeAll(matchesWithSvsOdds));
+      setOddsError('Använder SvS odds från filen. Bocka ur checkboxen för att hämta odds från API.');
+      return;
+    }
+
     // Auto-trigger odds fetching with the new matches
     console.log('Loaded matches:', computedMatches.map(m => `${m.home} - ${m.away}`));
 

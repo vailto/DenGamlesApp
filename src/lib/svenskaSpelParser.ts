@@ -5,6 +5,7 @@ export interface ParsedCoupon {
   roundNumber: string;
   matches: MatchInput[];
   skipOddsApi?: boolean;
+  useSvsOdds?: boolean;
 }
 
 /**

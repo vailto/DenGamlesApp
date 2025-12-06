@@ -12,6 +12,7 @@ export default function TextPasteInput({ onDataParsed }: TextPasteInputProps) {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [skipOdds, setSkipOdds] = useState(false);
+  const [useSvsOdds, setUseSvsOdds] = useState(false);
 
   const handleParse = async () => {
     setError('');
@@ -35,8 +36,8 @@ export default function TextPasteInput({ onDataParsed }: TextPasteInputProps) {
         return;
       }
 
-      // Pass skipOdds flag to parent (await in case it's async)
-      await onDataParsed({ ...parsed, skipOddsApi: skipOdds });
+      // Pass skipOdds and useSvsOdds flags to parent (await in case it's async)
+      await onDataParsed({ ...parsed, skipOddsApi: skipOdds, useSvsOdds });
       setSuccess(`✓ ${parsed.matches.length} matcher inlästa för ${parsed.sport} omgång ${parsed.roundNumber}`);
       setText(''); // Clear after success
     } catch (err) {
@@ -88,6 +89,19 @@ Svenska folket
             />
             <label htmlFor="skipOdds" className="text-sm text-gray-300">
               Hoppa över odds-hämtning (använd endast streck% för beräkningar)
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="useSvsOdds"
+              checked={useSvsOdds}
+              onChange={(e) => setUseSvsOdds(e.target.checked)}
+              className="mr-2 h-4 w-4 text-green-400 rounded accent-green-400"
+            />
+            <label htmlFor="useSvsOdds" className="text-sm text-gray-300">
+              Hoppa över API-hämtning (använd SvS odds från filen)
             </label>
           </div>
 
